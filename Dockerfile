@@ -1,11 +1,9 @@
-#LABEL org.opencontainers.image.authors="Bryan Klofas KF6ZEO bklofas@gmail"
+# -------------------
+# The build container
+# -------------------
+FROM debian:bookworm-slim AS build
 
-FROM debian:bookworm-slim
-
-LABEL "name"="rtl-aprs-igate" \
-  "description"="APRS Igate using RTL-SDR dongle" \
-  "author"="Bryan Klofas KF6ZEO"
-
+# Upgrade bookworm and install dependencies
 RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recommends \
     cmake \
     build-essential \
@@ -13,39 +11,48 @@ RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recom
     git \
     libusb-1.0-0-dev \
     pkg-config \
-    libasound2-dev && \
-#    libhamlib4 \
-#    libhamlib-utils \
-#    libhamlib-dev && \
-    rm -rf /var/lib/apt/lists/*
+    libasound2-dev
 
-# install everything in /target and it will go in to / on destination image. symlink make it easier for builds to find files installed by this.
-#RUN mkdir -p /target/usr && rm -rf /usr/local && ln -sf /target/usr /usr/local && mkdir /target/etc
-
+# Build and install RTL-SDR software into /root/target/usr/local
 RUN git clone --depth 1 https://github.com/rtlsdrblog/rtl-sdr-blog.git && \
-    cd rtl-sdr-blog && \
-    mkdir build && \
-    cd build && \
-    cmake ../ -DINSTALL_UDEV_RULES=ON && \
+    mkdir -p rtl-sdr-blog/build && \
+    cd rtl-sdr-blog/build && \
+    cmake ../ -DINSTALL_UDEV_RULES=ON -DCMAKE_INSTALL_PREFIX=/root/target/usr/local && \
     make && \
     make install
-#    cp ../rtl-sdr.rules /etc/udev/rules.d/ && \
-#    ldconfig && \
-#    echo 'blacklist dvb_usb_rtl28xxu' > /etc/modprobe.d/blacklist-dvb_usb_rtl28xxu.conf
 
-#COPY scripts/* /target/usr/bin/
-
+# Build and install Direwolf into /root/target/usr/local
 RUN git clone --depth 1 https://github.com/wb2osz/direwolf.git && \
-    cd direwolf && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
+    mkdir -p direwolf/build && \
+    cd direwolf/build && \
+    cmake ../ -DCMAKE_INSTALL_PREFIX=/root/target/usr/local && \
     make -j4 && \
     make install
 
+
+# -------------------------
+# The application container
+# -------------------------
+FROM debian:bookworm-slim
+
+LABEL org.opencontainers.image.title="rtl-aprs-igate"
+LABEL org.opencontainers.image.description="APRS Igate using RTL-SDR dongle"
+LABEL org.opencontainers.image.authors="Bryan Klofas KF6ZEO bklofas@gmail"
+
+# Upgrade bookworm and install dependencies
+RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recommends \
+    tini \
+    libusb-1.0-0-dev \
+    libasound2-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy pre-built RTL-SDR and direwolf into /usr/local. ldconfig is for the RTL-SDR USB libraries
+COPY --from=build /root/target /
+RUN ldconfig
+
 # Use tini as init.
-#ENTRYPOINT ["/usr/bin/tini", "--"]
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run rtl_fm -> direwolf
-CMD ["rtl_fm", "-f", "144.39M", "-", "|", "direwolf", "-c", "direwolf.conf", "-t", "0", "-r", "24000", "-D", "1", "-"]
+CMD ["/bin/bash", "-c", "rtl_fm -f 144.39M - | direwolf -c direwolf.conf -r 24000 -"]
 
