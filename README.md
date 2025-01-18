@@ -59,7 +59,7 @@ Change these options in the `direwolf.conf` file:
     * Ctrl-C to kill.
     * Using the --rm flag will delete the container when you kill it. Otherwise, it will stay around until you prune.
 
-1. For a more permanent setup, run the container in the background: `docker run -d --name rtl-aprs-igate --restart=unless-stopped --log-driver=local --network=host --device=/dev/bus/usb ghcr.io/bklofas/rtl-aprs-igate:latest`
+1. For a more permanent setup, run the container in the background: `docker run -d --name rtl-aprs-igate --restart=unless-stopped --log-driver=local --network=host --device=/dev/bus/usb -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
 
     * -d: Start this container in daemon/background mode.
     * --name: Name this anything you want.
@@ -67,6 +67,7 @@ Change these options in the `direwolf.conf` file:
     * --log-driver=local: By default, docker uses the json log driver which may fill up your harddrive, depending on how busy your station is. local log driver defaults to 100MB of saved logs, and automatically rotates them.
     * --network=host: Allows the container to talk to the internet, if you are sending the packets to an online service.
     * --device=: Allows the container to talk to the USB bus to access the RTL-SDR dongle.
+    * -v: Mounts the direwolf config file inside the container.
     * View the startup messages and decoded packets with `docker logs -n 25 --follow rtl-aprs-igate`
     * Stop the container with `docker stop rtl-aprs-igate`
     * The Direwolf configuration file gets reloaded every time you restart the container with `docker restart rtl-aprs-igate`
