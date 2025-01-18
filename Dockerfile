@@ -38,6 +38,8 @@ FROM debian:bookworm-slim
 LABEL org.opencontainers.image.title="rtl-aprs-igate"
 LABEL org.opencontainers.image.description="APRS Igate using RTL-SDR dongle"
 LABEL org.opencontainers.image.authors="Bryan Klofas KF6ZEO bklofas@gmail"
+LABEL org.opencontainers.image.source="https://github.com/bklofas/rtl-aprs-igate"
+LABEL org.opencontainers.image.licenses="MIT"
 
 # Upgrade bookworm and install dependencies
 RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recommends \
