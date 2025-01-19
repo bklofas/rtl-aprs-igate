@@ -1,10 +1,17 @@
 # rtl-aprs-igate
-Docker container for RX-only APRS Igate using a RTL-SDR dongle.
+Docker container for receive-only APRS Igate using a RTL-SDR dongle.
 
-This docker container receives [APRS](https://en.wikipedia.org/wiki/Automatic_Packet_Reporting_System) packets with an RTL-SDR and sends the packets to the APRS-IS servers.
+This docker container receives [APRS](https://en.wikipedia.org/wiki/Automatic_Packet_Reporting_System) packets with an RTL-SDR dongle and sends the packets to the APRS-IS servers.
+
+## Hardware Required
+I recommend the [RTL-SDR Blog v3 or v4](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-t-dongles/) dongles, they are only a few dollars more than the cheap Chinese knockoffs and they work so much better. Currently, you can't specify a device_index (serial number) for the dongle, so if you have more than one dongle plugged into a computer it will randomly pick one to use. I hope to add an option for specifying a serial number soon.
+
+You'll also need an antenna plugged into the dongle. For mobile use, any 1/4 wave mag mount works well. For home/stationary use, a J-pole or [quarter-wave ground plane antenna](https://www.klofas.com/blog/2022/quarter-wave-ground-plane-antenna/) works well.
+
+
 
 ## Run this container
-Run this project in a docker container. No dependencies to install. Total container size is 100 to 125 MB, depending on the host architecture.
+This project installs the RTL-SDR drivers and Direwolf into a docker container. No dependencies to install. Total container size is 100 to 125 MB, depending on the host architecture.
 
 ### 1.1 Install Docker
 Check to see if docker is already installed by running `docker ps`. If this errors out, install Docker by using the convenience script:
@@ -49,28 +56,29 @@ Change these options in the `direwolf.conf` file:
 * If you want to "beacon" your receiver location to the APRS network over the internet, uncomment the PBEACON option and add your latitude/longitude
 
 ### 1.4 Run The Container
-1. Just to test things out: `docker run -it --rm --network=host --device=/dev/bus/usb -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
+1. Just to test things out: `docker run -it --rm --device=/dev/bus/usb -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
 
     * This downloads a pre-built container from the Github container registry.
     * Architectures supported are i386, amd64, arm32v6, arm32v7, and arm64. Tested on amd64, arm32v7, and arm64. arm packages run on all RaspberryPi flavors. Your client will automatically download the appropriate architecture.
     * This image will run by default `rtl_fm -f 144.39M - | direwolf -c direwolf.conf -r 24000 -`, and show the received packets on STDOUT.
-    * Make sure at least one RTL-SDR dongle is connected.
+    * Make sure at least one RTL-SDR dongle is connected, it will pick the first available dongle to use.
+    * Host networking (--network=host) is not required, since traffic is outbound only.
     * Startup messages and decoded packets will display in the terminal.
-    * Ctrl-C to kill.
     * Using the --rm flag will delete the container when you kill it. Otherwise, it will stay around until you prune.
+    * Ctrl-C to kill.
+    * If something is broken, you can start the container (without running the rtl_fm command) by appending `bash` on the end of the docker run command
 
-1. For a more permanent setup, run the container in the background: `docker run -d --name rtl-aprs-igate --restart=unless-stopped --log-driver=local --network=host --device=/dev/bus/usb -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
+1. For a more permanent setup, run the container in the background: `docker run -d --name rtl-aprs-igate --restart=unless-stopped --log-driver=local --device=/dev/bus/usb -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
 
     * -d: Start this container in daemon/background mode.
     * --name: Name this anything you want.
     * --restart=unless-stopped: Automatically restart the container if something happens (reboot, USB problem), unless you have manually stopped the container.
     * --log-driver=local: By default, docker uses the json log driver which may fill up your harddrive, depending on how busy your station is. local log driver defaults to 100MB of saved logs, and automatically rotates them.
-    * --network=host: Allows the container to talk to the internet, if you are sending the packets to an online service.
     * --device=: Allows the container to talk to the USB bus to access the RTL-SDR dongle.
     * -v: Mounts the direwolf config file inside the container.
-    * View the startup messages and decoded packets with `docker logs -n 25 --follow rtl-aprs-igate`
+    * View the last 25 log lines with `docker logs -n 25 --follow rtl-aprs-igate`
     * Stop the container with `docker stop rtl-aprs-igate`
-    * The Direwolf configuration file gets reloaded every time you restart the container with `docker restart rtl-aprs-igate`
+    * Use `docker restart rtl-aprs-igate` to reload the Direwolf configuration file.
 
 
 
@@ -82,6 +90,7 @@ To build this container locally, check out this repository and build with `docke
 
 * Ability to add rtl_fm command-line options, such as different RX frequency, device index, gain, etc. This will require some scripting to read a config file
 * Use TBEACON in direwolf, which requires GPSD input
+* Add docker compose file
 
 ## Acknowledgments/Inspiration
 
