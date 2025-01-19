@@ -1,7 +1,7 @@
 # rtl-aprs-igate
-Docker container for RX-only APRS Igate using a RTL-SDR dongle. The 
+Docker container for receive-only APRS Igate using a RTL-SDR dongle.
 
-This docker container receives [APRS](https://en.wikipedia.org/wiki/Automatic_Packet_Reporting_System) packets with an RTL-SDR and sends the packets to the APRS-IS servers.
+This docker container receives [APRS](https://en.wikipedia.org/wiki/Automatic_Packet_Reporting_System) packets with an RTL-SDR dongle and sends the packets to the APRS-IS servers.
 
 ## Hardware Required
 I recommend the [RTL-SDR Blog v3 or v4](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-t-dongles/) dongles, they are only a few dollars more than the cheap Chinese knockoffs and they work so much better. Currently, you can't specify a device_index (serial number) for the dongle, so if you have more than one dongle plugged into a computer it will randomly pick one to use. I hope to add an option for specifying a serial number soon.
