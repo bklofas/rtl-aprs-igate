@@ -39,7 +39,7 @@ jobs:
         file: ./Dockerfile
         platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v6,linux/arm/v7
         push: ${{ github.event_name != 'pull_request' }}
-        outputs: type=image,name=target,annotation-index.org.opencontainers.image.description="APRS Igate using RTL-SDR dongle",annotation-index.org.opencontainers.image.authors="Bryan Klofas KF6ZEO bklofas@gmail"
+        outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=APRS Igate using RTL-SDR dongle
         tags: |
           ghcr.io/bklofas/rtl-aprs-igate:latest
           - ghcr.io/bklofas/rtl-aprs-igate:latest
