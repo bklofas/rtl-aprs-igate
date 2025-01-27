@@ -42,3 +42,5 @@ jobs:
         outputs: type=image,name=target,annotation-index.org.opencontainers.image.description="APRS Igate using RTL-SDR dongle",annotation-index.org.opencontainers.image.authors="Bryan Klofas KF6ZEO bklofas@gmail"
         tags: |
           ghcr.io/bklofas/rtl-aprs-igate:latest
+          - ghcr.io/bklofas/rtl-aprs-igate:latest
+          - ghcr.io/bklofas/rtl-aprs-igate:${{ github.ref_name }}
