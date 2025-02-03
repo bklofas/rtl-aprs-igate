@@ -53,6 +53,9 @@ RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recom
 COPY --from=build /root/target /
 RUN ldconfig
 
+# Copy the run.py script into the container
+COPY run.py /
+
 # Use tini as init.
 ENTRYPOINT ["/usr/bin/tini", "--"]
 

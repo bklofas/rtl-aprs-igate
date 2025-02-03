@@ -6,9 +6,9 @@ This docker container receives [APRS](https://en.wikipedia.org/wiki/Automatic_Pa
 ## Hardware Required
 I recommend the [RTL-SDR Blog v3 or v4](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-t-dongles/) dongles, they are only a few dollars more than the cheap Chinese knockoffs and they work so much better.
 
-If you have more than one RTL-SDR dongle, set each one with a unique device_index (serial number). Use This is an 8-digit number (00000000 or 00000001) set on the RTL-SDR dongle's firmware. Use `rtl_eeprom` to program this (instructions below).
+If you have more than one RTL-SDR dongle, set each one with a unique device_index (serial number). This is an 8-digit number (such as 00000005) set on the RTL-SDR dongle's firmware. Use `rtl_eeprom` to program this (instructions below). DO NOT program a device_idx of 00000000 or 00000001 on any RTL-SDR, this causes confusion in the RTL-SDR utilities.
 
-Ensure the RTL-SDR dongle has adequite power. If using a hub, check that it is powered
+Ensure the RTL-SDR dongle has adequite power. If using a hub, check that it is an active externally-powered hub, not powered from the main computer. Or better yet, plug the RTL-SDR dongle directly into the host USB port, don't use a hub.
 
 You'll also need an antenna plugged into the dongle. For mobile use, any 1/4 wave mag mount works well. For home/stationary use, a J-pole or [quarter-wave ground plane antenna](https://www.klofas.com/blog/2022/quarter-wave-ground-plane-antenna/) works well.
 
@@ -43,7 +43,7 @@ sudo modprobe -r dvb_usb_rtl28xxu
 
 If the `modprobe -r` command errors, reboot the computer to unload the module.
 
-### 1.3 RTL Options
+### 1.3 RTL-SDR Dongle Options
 
 The `station.conf` file has all of the options for the RTL-SDR dongle.
 
@@ -85,21 +85,30 @@ Change these options in the `direwolf.conf` file:
     * Ctrl-C to kill.
     * If something is broken, you can start the container (without running the rtl_fm command) by appending `bash` on the end of the docker run command
 
-1. For a more permanent setup, run the container in the background: `docker run -d --name rtl-aprs-igate --restart=unless-stopped --log-driver=local --device=/dev/bus/usb -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
+1. For a more permanent setup, run the container in the background: `docker run -d --name rtl-aprs-igate --restart=unless-stopped --log-driver=local --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/station.conf:ro -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
 
     * -d: Start this container in daemon/background mode.
     * --name: Name this anything you want.
     * --restart=unless-stopped: Automatically restart the container if something happens (reboot, USB problem), unless you have manually stopped the container.
     * --log-driver=local: By default, docker uses the json log driver which may fill up your harddrive, depending on how busy your station is. local log driver defaults to 100MB of saved logs, and automatically rotates them.
     * --device=: Allows the container to talk to the USB bus to access the RTL-SDR dongle.
-    * -v: Mounts the direwolf config file inside the container.
+    * -v: Mounts the config files inside the container.
     * View the last 25 log lines with `docker logs -n 25 --follow rtl-aprs-igate`
     * Stop the container with `docker stop rtl-aprs-igate`
-    * Use `docker restart rtl-aprs-igate` to reload the Direwolf configuration file.
+    * Use `docker restart rtl-aprs-igate` to reload the station.conf and direwolf.conf configuration files.
 
 ## Jump Into the Container
 
-docker run -it --rm --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/station.conf:ro -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate bash
+If you just want to start a new container but not actually start rtl_fm and direwolf:
+
+```
+docker run -it --rm --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/station.conf:ro -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest bash
+```
+
+If you're already running this container in background/daemon mode, you can jump into the running container with `docker exec -it rtl-aprs-igate bash`
+
+Once you're inside the container, you can run any of the RTL-SDR utilities manually, or direwolf. To change the device_idx (serial number) of a RTL_SDR dongle to 00000005, run `rtl_eeprom -s 00000005`
+
 
 ## Build Container Locally
 To build this container locally, check out this repository and build with `docker build -t rtl-aprs-igate .` Image size will be between 140 and 170 MB depending on your computer architecture.
@@ -107,15 +116,24 @@ To build this container locally, check out this repository and build with `docke
 
 ## Future Work
 
-* Ability to add rtl_fm command-line options, such as different RX frequency, device index, gain, etc. This will require some scripting to read a config file
+* Add direwolf configuration options to station.conf file
 * Use TBEACON in direwolf, which requires GPSD input
 * Add docker compose file
 
+## Versions
+
+1. Version 1.0:
+    * ghcr.io/bklofas/rtl-aprs-igate:v1.0
+    * Original release, no RTL-SDR options available
+1. Version 2.0:
+    * ghcr.io/bklofas/rtl-aprs-igate:v2.0
+    * Added station.conf configuration file for RTL-SDR options.
+
 ## Acknowledgments/Inspiration
 
-* [beardymcbeards](https://github.com/beardymcbeards) for help on the docker build container setup
-* [darksidelemm](https://github.com/darksidelemm) for the [radiosonde_auto_rx](https://github.com/projecthorus/radiosonde_auto_rx/wiki) project, where I stole a bunch of docker ideas and documentation
-* [johnboiles](https://github.com/johnboiles) and his [pi-rtlsdr-igate-docker](https://github.com/johnboiles/pi-rtlsdr-igate-docker) project, which has almost everything I wanted but uses environment variables instead of a config file
+* [beardymcbeards](https://github.com/beardymcbeards) for help on the docker build container setup.
+* [darksidelemm](https://github.com/darksidelemm) for the [radiosonde_auto_rx](https://github.com/projecthorus/radiosonde_auto_rx/wiki) project, where I stole a bunch of docker ideas and documentation.
+* [johnboiles](https://github.com/johnboiles) and his [pi-rtlsdr-igate-docker](https://github.com/johnboiles/pi-rtlsdr-igate-docker) project, which has almost everything I wanted but uses environment variables instead of a config file.
 
 
 
