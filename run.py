@@ -1,6 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 #   rtl-aprs-igate - Configuration File Reader
+#     Reads a RTL-SDR configuration file and generates the rtl_fm options before
+#     passing 
 #
 
 #import copy
@@ -8,7 +10,9 @@
 #import os
 #import traceback
 #import json
+import subprocess
 from configparser import RawConfigParser
+
 
 
 # Set up defaults
@@ -69,3 +73,6 @@ rtl_fm_cmd = (
 
 print("command: ", rtl_fm_cmd)
 
+subprocess.run(rtl_fm_cmd, 
+    shell=True,
+    check=True, text=True)
