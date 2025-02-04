@@ -44,17 +44,21 @@ LABEL org.opencontainers.image.licenses="MIT"
 # Upgrade bookworm and install dependencies
 RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recommends \
     tini \
+    python3 \
     libusb-1.0-0-dev \
     libasound2-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy pre-built RTL-SDR and direwolf into /usr/local. ldconfig is for the RTL-SDR USB libraries
+# Copy pre-built RTL-SDR and direwolf from /root/target/usr/local into /usr/local. ldconfig is for the RTL-SDR USB libraries
 COPY --from=build /root/target /
 RUN ldconfig
+
+# Copy the run.py script into the container
+COPY run.py /
 
 # Use tini as init.
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
-# Run rtl_fm -> direwolf
-CMD ["/bin/bash", "-c", "rtl_fm -f 144.39M - | direwolf -c direwolf.conf -r 24000 -"]
+# Run python script to generate rtl_fm | direwolf command
+CMD ["/bin/bash", "-c", "/run.py"]
 
