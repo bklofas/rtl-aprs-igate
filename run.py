@@ -92,7 +92,7 @@ print(f"Gain: {gain}")
 
 # Generate the rtl_fm command based on the arguments above
 rtl_fm_cmd = (
-    f"rtl_fm -f {frequency} "
+    f"rtl_fm -f {frequency}M "
     f"{device_idx_param}"
     f"{'-T ' if bias else ''}"
     f"{ppm_param}"
