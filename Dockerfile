@@ -26,7 +26,7 @@ RUN git clone --depth 1 https://github.com/wb2osz/direwolf.git && \
     mkdir -p direwolf/build && \
     cd direwolf/build && \
     cmake ../ -DCMAKE_INSTALL_PREFIX=/root/target/usr/local && \
-    make -j4 && \
+    make && \
     make install
 
 
