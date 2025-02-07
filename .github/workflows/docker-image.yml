@@ -32,12 +32,10 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.RTLAPRSIGATE_CLASSIC_TOKEN }}
 
-# Compiler seg faults on linux/arm64 container built on Github runners
-# Seg faults at different points during each build, it's random
-# Started on 5 Feb 2025 at ~1400 UTC
     - name: Build and push to ghcr
       uses: docker/build-push-action@v6
       with:
+        image: tonistiigi/binfmt:qemu-v8.1.5
         context: .
         file: ./Dockerfile
         platforms: linux/amd64,linux/arm64,linux/386,linux/arm/v6,linux/arm/v7
