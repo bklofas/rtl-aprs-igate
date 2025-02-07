@@ -10,7 +10,8 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
+      uses: docker/setup-qemu-action@v3.3.0
+        image: tonistiigi/binfmt:qemu-v8.1.5
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -35,7 +36,6 @@ jobs:
     - name: Build and push to ghcr
       uses: docker/build-push-action@v6
       with:
-        image: tonistiigi/binfmt:qemu-v8.1.5
         context: .
         file: ./Dockerfile
         platforms: linux/amd64,linux/arm64,linux/386,linux/arm/v6,linux/arm/v7
