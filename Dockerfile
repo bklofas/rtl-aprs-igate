@@ -1,7 +1,7 @@
 # -------------------
 # The build container
 # -------------------
-FROM debian:trixie-slim AS build
+FROM debian:bookworm-slim AS build
 
 # Upgrade bookworm and install dependencies
 RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recommends \
@@ -33,7 +33,7 @@ RUN git clone --depth 1 https://github.com/wb2osz/direwolf.git && \
 # -------------------------
 # The application container
 # -------------------------
-FROM debian:trixie-slim
+FROM debian:bookworm-slim
 
 LABEL org.opencontainers.image.title="rtl-aprs-igate"
 LABEL org.opencontainers.image.description="APRS Igate using RTL-SDR dongle"

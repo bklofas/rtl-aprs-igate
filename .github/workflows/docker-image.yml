@@ -9,8 +9,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-#    - name: Set up QEMU
-#      uses: docker/setup-qemu-action@v3
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -32,25 +32,15 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.RTLAPRSIGATE_CLASSIC_TOKEN }}
 
-# Need to split the arm64 build into it's own action because Direwolf seg faults when compiling
+# Compiler seg faults on linux/arm64 container built on Github runners
+# Seg faults at different points during each build, it's random
+# Started on 5 Feb 2025 at ~1400 UTC
     - name: Build and push to ghcr
       uses: docker/build-push-action@v6
       with:
         context: .
         file: ./Dockerfile
-        platforms: linux/arm64
-        push: ${{ github.event_name != 'pull_request' }}
-        outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=APRS Igate using RTL-SDR dongle
-        tags: |
-          ghcr.io/bklofas/rtl-aprs-igate:latest
-          ghcr.io/bklofas/rtl-aprs-igate:${{ github.ref_name }}
-    
-    - name: Build and push to ghcr
-      uses: docker/build-push-action@v6
-      with:
-        context: .
-        file: ./Dockerfile
-        platforms: linux/amd64,linux/386,linux/arm/v6,linux/arm/v7
+        platforms: linux/amd64,linux/arm64,linux/386,linux/arm/v6,linux/arm/v7
         push: ${{ github.event_name != 'pull_request' }}
         outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=APRS Igate using RTL-SDR dongle
         tags: |
