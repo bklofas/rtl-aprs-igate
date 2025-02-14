@@ -49,7 +49,8 @@ RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recom
     libasound2-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy pre-built RTL-SDR and direwolf from /root/target/usr/local into /usr/local. ldconfig is for the RTL-SDR USB libraries
+# Copy pre-built RTL-SDR and direwolf from /root/target/usr/local into /usr/local.
+# ldconfig is for the RTL-SDR USB libraries
 COPY --from=build /root/target /
 RUN ldconfig
 
@@ -60,5 +61,6 @@ COPY run.py /
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run python script to generate rtl_fm | direwolf command
-CMD ["/bin/bash", "-c", "/run.py"]
+# Needs -u (unbuffered) to get script stdout to print to docker logs 
+CMD ["python3", "-u", "/run.py"]
 
