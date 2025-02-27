@@ -6,7 +6,7 @@ This docker container receives [APRS](https://en.wikipedia.org/wiki/Automatic_Pa
 ## Hardware Required
 I recommend the [RTL-SDR Blog v3 or v4](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-t-dongles/) dongles, they are only a few dollars more than the cheap Chinese knockoffs and they work so much better.
 
-If you have more than one RTL-SDR dongle, set each one with a unique device_index (serial number). This is an 8-digit number (such as 00000005) set on the RTL-SDR dongle's firmware. Use `rtl_eeprom` to program this (instructions below). DO NOT program a device_idx of 00000000 or 00000001 on any RTL-SDR, this causes confusion in the RTL-SDR utilities.
+If you have more than one RTL-SDR dongle, set each one with a unique device_index (serial number). This is an 8-character string (such as SDR00005) set on the RTL-SDR dongle's firmware. Use `rtl_eeprom` to program this (instructions below). DO NOT program a device_idx of 00000000 or 00000001 on any RTL-SDR, this causes confusion in the RTL-SDR utilities.
 
 Ensure the RTL-SDR dongle has adequite power. If using a hub, check that it is an active externally-powered hub, not powered from the main computer. Or better yet, plug the RTL-SDR dongle directly into the host USB port, don't use a hub.
 
@@ -43,9 +43,9 @@ sudo modprobe -r dvb_usb_rtl28xxu
 
 If the `modprobe -r` command errors, reboot the computer to unload the module.
 
-### 1.3 RTL-SDR Dongle Options
+### 1.3 Configuration file
 
-The `station.conf` file has all of the options for the RTL-SDR dongle.
+The `station.conf` file has all of the options for the RTL-SDR dongle and Direwolf.
 
 ```
 mkdir -p ~/rtl-aprs-igate
@@ -53,25 +53,10 @@ curl -o ~/rtl-aprs-igate/station.conf https://raw.githubusercontent.com/bklofas/
 vim ~/rtl-aprs-igate/station.conf
 ```
 
-Change your local APRS frequency, RTL-SDR device index, etc.
+Change your local APRS frequency, RTL-SDR device index, callsign, IGate server, etc.
 
-### 1.4 Direwolf Configuration
-[Direwolf](https://github.com/wb2osz/direwolf) requires configuration before it will run correctly. Download the Direwolf configuration file and edit it locally:
 
-```
-mkdir -p ~/rtl-aprs-igate
-curl -o ~/rtl-aprs-igate/direwolf.conf https://raw.githubusercontent.com/bklofas/rtl-aprs-igate/master/direwolf.conf
-vim ~/rtl-aprs-igate/direwolf.conf
-```
-
-Change these options in the `direwolf.conf` file:
-
-* MYCALL: Your personal callsign
-* IGSERVER: Your local APRS-IS server, based on continent
-* IGLOGIN: Your callsign and [password](https://apps.magicbug.co.uk/passcode/)
-* If you want to "beacon" your receiver location to the APRS network over the internet, uncomment the PBEACON option and add your latitude/longitude
-
-### 1.5 Run The Container
+### 1.4 Run The Container
 1. Just to test things out: `docker run -it --rm --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/station.conf:ro -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
 
     * This downloads a pre-built container from the Github container registry.
@@ -107,7 +92,7 @@ docker run -it --rm --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/stat
 
 If you're already running this container in background/daemon mode, you can jump into the running container with `docker exec -it rtl-aprs-igate bash`
 
-Once you're inside the container, you can run any of the RTL-SDR utilities manually, or direwolf. To change the device_idx (serial number) of a RTL_SDR dongle to 00000005, run `rtl_eeprom -s 00000005`
+Once you're inside the container, you can run any of the RTL-SDR utilities manually, or direwolf. To change the device_idx (serial number) of a RTL_SDR dongle to 00000005, run `rtl_eeprom -s SDR00005`
 
 
 ## Build Container Locally
@@ -116,7 +101,6 @@ To build this container locally, check out this repository and build with `docke
 
 ## Future Work
 
-* Add direwolf configuration options to station.conf file
 * Use TBEACON in direwolf, which requires GPSD input
 * Add docker compose file
 
@@ -128,6 +112,9 @@ To build this container locally, check out this repository and build with `docke
 1. Version 2.0:
     * ghcr.io/bklofas/rtl-aprs-igate:v2.0
     * Added station.conf configuration file for RTL-SDR options.
+1. Version 3.0:
+    * ghcr.io/bklofas/rtl-aprs-igate:v3.0
+    * Added direwolf section to configuration file, to generate the direwolf.conf file automatically
 
 ## Acknowledgments/Inspiration
 
