@@ -80,7 +80,7 @@ Change your local APRS frequency, RTL-SDR device index, callsign, IGate server, 
     * -v: Mounts the config files inside the container.
     * View the last 25 log lines with `docker logs -n 25 --follow rtl-aprs-igate`
     * Stop the container with `docker stop rtl-aprs-igate`
-    * Use `docker restart rtl-aprs-igate` to reload the station.conf configuration files.
+    * Use `docker restart rtl-aprs-igate` to reload the station.conf configuration file.
 
 ## Jump Into the Container
 
