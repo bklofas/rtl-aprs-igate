@@ -10,6 +10,7 @@
 import logging
 import os
 import sys
+import datetime
 import subprocess
 from configparser import RawConfigParser
 
@@ -22,7 +23,17 @@ rtl_aprs_igate_config = {
     "device_idx": 0,
     "ppm": 0,
     "bias": False,
-    "gain": -1
+    "gain": -1,
+    "mycall": "TEST",
+    "igserver": "noam.aprs2.net",
+    "igpasscode": "12345",
+    "pbeacon": False,
+    "beacondelay": "0:30",
+    "beaconevery": "10",
+    "beaconsymbol": "igate",
+    "lat": 0,
+    "long": 0,
+    "igcomment": "Docker Direwolf + RTL-SDR"
 }
 
 
@@ -36,8 +47,9 @@ if not os.path.isfile(filename):
 config = RawConfigParser(rtl_aprs_igate_config)
 config.read(filename)
 
-
-# Set the configuration file options
+################
+# RTL-FM Options
+################
 frequency = config.getfloat("rtl_fm", "frequency")
 device_idx = config.get("rtl_fm", "device_idx")
 ppm = config.getfloat("rtl_fm", "ppm")
@@ -81,7 +93,6 @@ if gain != -1:
 else:
     gain_param = ""
 
-
 # Print the options
 print(f"Frequency: {frequency:.3f} MHz")
 print(f"Device_index: {device_idx}")
@@ -90,7 +101,52 @@ print(f"Bias-Tee: {bias}")
 print(f"Gain: {gain}")
 
 
-# Generate the rtl_fm command based on the arguments above
+######################
+# Direwolf Config File
+######################
+
+mycall = config.get("direwolf", "mycall")
+ssid = config.get("direwolf", "ssid")
+igserver = config.get("direwolf", "igserver")
+igpasscode = config.get("direwolf", "igpasscode")
+pbeacon = config.getboolean("direwolf", "pbeacon")
+beacondelay = config.get("direwolf", "beacondelay")
+beaconevery = config.get("direwolf", "beaconevery")
+beaconsymbol = config.get("direwolf", "beaconsymbol")
+lat = config.get("direwolf", "lat")
+long = config.get("direwolf", "long")
+igcomment = config.get("direwolf", "igcomment")
+igfilter = config.get("direwolf", "igfilter")
+
+if pbeacon == True:
+    pbeacon = f"PBEACON sendto=IG delay={beacondelay} every={beaconevery} symbol={beaconsymbol} overlay=R lat={lat} long={long} comment={igcomment}"
+else:
+    pbeacon = ""
+
+try:
+    with open("direwolf.conf", "x") as file:
+        file.write(f"# Direwolf.conf file generated: {datetime.datetime.now()}\n")
+        file.write(f"ADEVICE null null\n")
+        file.write(f"CHANNEL 0\n")
+        file.write(f"MYCALL {mycall} {ssid}\n")
+        file.write(f"IGSERVER {igserver}\n")
+        file.write(f"ILOGIN {mycall} {igpasscode}\n")
+        file.write(f"{pbeacon}\n")
+#        file.write("
+        file.close()
+        
+        with open("direwolf.conf", 'r') as file:
+            print(file.read())
+
+except FileExistsError:
+    print("Direwolf.conf already exists. Using existing file.")
+
+
+
+####################
+# Command Generation
+####################
+
 rtl_fm_cmd = (
     f"rtl_fm -f {frequency}M "
     f"{device_idx_param}"
@@ -104,6 +160,6 @@ print("command:", rtl_fm_cmd)
 
 
 # Send the command to the container to run
-subprocess.run(rtl_fm_cmd, 
-    shell=True, check=True, text=True)
+#subprocess.run(rtl_fm_cmd, 
+#    shell=True, check=True, text=True)
 
