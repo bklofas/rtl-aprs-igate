@@ -57,7 +57,7 @@ Change your local APRS frequency, RTL-SDR device index, callsign, IGate server, 
 
 
 ### 1.4 Run The Container
-1. Just to test things out: `docker run -it --rm --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/station.conf:ro -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
+1. Just to test things out: `docker run -it --rm --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/station.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
 
     * This downloads a pre-built container from the Github container registry.
     * Architectures supported are i386, amd64, arm32v6, arm32v7, and arm64. Tested on amd64, arm32v7, and arm64. arm packages run on all RaspberryPi flavors. Your client will automatically download the appropriate architecture.
@@ -70,7 +70,7 @@ Change your local APRS frequency, RTL-SDR device index, callsign, IGate server, 
     * Ctrl-C to kill.
     * If something is broken, you can start the container (without running the rtl_fm command) by appending `bash` on the end of the docker run command
 
-1. For a more permanent setup, run the container in the background: `docker run -d --name rtl-aprs-igate --restart=unless-stopped --log-driver=local --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/station.conf:ro -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
+1. For a more permanent setup, run the container in the background: `docker run -d --name rtl-aprs-igate --restart=unless-stopped --log-driver=local --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/station.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest`
 
     * -d: Start this container in daemon/background mode.
     * --name: Name this anything you want.
@@ -80,19 +80,19 @@ Change your local APRS frequency, RTL-SDR device index, callsign, IGate server, 
     * -v: Mounts the config files inside the container.
     * View the last 25 log lines with `docker logs -n 25 --follow rtl-aprs-igate`
     * Stop the container with `docker stop rtl-aprs-igate`
-    * Use `docker restart rtl-aprs-igate` to reload the station.conf and direwolf.conf configuration files.
+    * Use `docker restart rtl-aprs-igate` to reload the station.conf configuration files.
 
 ## Jump Into the Container
 
 If you just want to start a new container but not actually start rtl_fm and direwolf:
 
 ```
-docker run -it --rm --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/station.conf:ro -v ~/rtl-aprs-igate/direwolf.conf:/root/direwolf.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest bash
+docker run -it --rm --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/station.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest bash
 ```
 
 If you're already running this container in background/daemon mode, you can jump into the running container with `docker exec -it rtl-aprs-igate bash`
 
-Once you're inside the container, you can run any of the RTL-SDR utilities manually, or direwolf. To change the device_idx (serial number) of a RTL_SDR dongle to 00000005, run `rtl_eeprom -s SDR00005`
+Once you're inside the container, you can run any of the RTL-SDR utilities manually, or direwolf. To change the device_idx (serial number) of a RTL_SDR dongle to SDR00005, run `rtl_eeprom -s SDR00005`
 
 
 ## Build Container Locally
