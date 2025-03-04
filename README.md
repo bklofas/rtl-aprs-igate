@@ -58,6 +58,8 @@ Please replug the device for changes to take effect.
 root@2ca01d75885c:/#
 ```
 
+Type `exit` to quit the container, the --rm flags ensure that the container doesn't stay around after you've quit.
+
 </details>
 
 Ensure the RTL-SDR dongle has adequate power. If using a hub, check that it is an active externally-powered hub, not powered from the main computer. Or better yet, plug the RTL-SDR dongle directly into the host USB port, don't use a hub. Raspberry Pi's (and other small embedded computers) have a lower power limit 
@@ -66,7 +68,7 @@ You'll also need an antenna plugged into the dongle. For mobile use, any 1/4 wav
 
 
 
-## Run this container
+## Run This Project
 This project installs the RTL-SDR drivers and Direwolf into a docker container. No dependencies to install. Total container size is 125 to 160 MB, depending on the host architecture.
 
 ### 1.1 Install Docker
@@ -144,7 +146,7 @@ docker run -it --rm --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/stat
 
 If you're already running this container in background/daemon mode, you can jump into the running container with `docker exec -it rtl-aprs-igate bash`
 
-Once you're inside the container, you can run any of the RTL-SDR utilities manually, or direwolf. To change the device_idx (serial number) of a RTL_SDR dongle to SDR00005, run `rtl_eeprom -s SDR00005`
+Once you're inside the container, you can run any of the RTL-SDR utilities manually such as `rtl_eeprom` or `rtl_test`, or `python3 ./run.sh` to run the script, or `direwolf` and options to run direwolf.
 
 
 ## Build Container Locally
