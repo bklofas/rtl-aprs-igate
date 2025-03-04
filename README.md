@@ -9,7 +9,9 @@ I recommend the [RTL-SDR Blog v3 or v4](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-
 If you have more than one RTL-SDR dongle, set each one with a unique device_index (serial number). This is an 8-character string (such as SDR00005) set on the RTL-SDR dongle's firmware. Use `rtl_eeprom` to program this (instructions below). DO NOT program a device_idx of 00000000 or 00000001 on any RTL-SDR, this causes confusion in the RTL-SDR utilities.
 
 <details>
+
 <summary>Programming RTL-SDR serial number</summary>
+
 ```
 root@2ca01d75885c:/# rtl_eeprom -s SDR00002
 Found 1 device(s):
@@ -47,6 +49,7 @@ Configuration successfully written.
 Please replug the device for changes to take effect.
 root@2ca01d75885c:/#
 ```
+
 </details>
 
 Ensure the RTL-SDR dongle has adequate power. If using a hub, check that it is an active externally-powered hub, not powered from the main computer. Or better yet, plug the RTL-SDR dongle directly into the host USB port, don't use a hub. Raspberry Pi's (and other small embedded computers) have a lower power limit 
