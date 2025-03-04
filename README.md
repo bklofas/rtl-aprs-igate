@@ -12,7 +12,15 @@ If you have more than one RTL-SDR dongle, set each one with a unique device_inde
 
 <summary>Programming RTL-SDR serial number</summary>
 
+Jump into a new container to access the rtl_eeprom utility:
 ```
+$ docker run -it --rm --device=/dev/bus/usb ghcr.io/bklofas/rtl-aprs-igate:latest bash`
+```
+
+Then once inside the container, run rtl_eeprom:
+
+```
+
 root@2ca01d75885c:/# rtl_eeprom -s SDR00002
 Found 1 device(s):
   0:  Generic RTL2832U OEM
