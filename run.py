@@ -119,7 +119,7 @@ igcomment = config.get("direwolf", "igcomment")
 igfilter = config.get("direwolf", "igfilter")
 
 if pbeacon == True:
-    pbeacon = f"PBEACON sendto=IG delay={beacondelay} every={beaconevery} symbol={beaconsymbol} overlay=R lat={lat} long={long} comment={igcomment}"
+    pbeacon = f"PBEACON sendto=IG delay={beacondelay} every={beaconevery} symbol=\"{beaconsymbol}\" overlay=R lat={lat} long={long} comment=\"{igcomment}\""
 else:
     pbeacon = ""
 
@@ -128,9 +128,9 @@ try:
         file.write(f"# Direwolf.conf file generated: {datetime.datetime.now()}\n")
         file.write(f"ADEVICE null null\n")
         file.write(f"CHANNEL 0\n")
-        file.write(f"MYCALL {mycall} {ssid}\n")
+        file.write(f"MYCALL {mycall}-{ssid}\n")
         file.write(f"IGSERVER {igserver}\n")
-        file.write(f"ILOGIN {mycall} {igpasscode}\n")
+        file.write(f"IGLOGIN {mycall} {igpasscode}\n")
         file.write(f"{pbeacon}\n")
 #        file.write("
         file.close()
@@ -160,6 +160,6 @@ print("command:", rtl_fm_cmd)
 
 
 # Send the command to the container to run
-#subprocess.run(rtl_fm_cmd, 
-#    shell=True, check=True, text=True)
+subprocess.run(rtl_fm_cmd, 
+    shell=True, check=True, text=True)
 
