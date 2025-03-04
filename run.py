@@ -130,7 +130,7 @@ try:
         file.write(f"CHANNEL 0\n")
         file.write(f"MYCALL {mycall}-{ssid}\n")
         file.write(f"IGSERVER {igserver}\n")
-        file.write(f"IGLOGIN {mycall} {igpasscode}\n")
+        file.write(f"IGLOGIN {mycall}-{ssid} {igpasscode}\n")
         file.write(f"{pbeacon}\n")
 #        file.write("
         file.close()

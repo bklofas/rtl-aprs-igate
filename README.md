@@ -8,14 +8,55 @@ I recommend the [RTL-SDR Blog v3 or v4](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-
 
 If you have more than one RTL-SDR dongle, set each one with a unique device_index (serial number). This is an 8-character string (such as SDR00005) set on the RTL-SDR dongle's firmware. Use `rtl_eeprom` to program this (instructions below). DO NOT program a device_idx of 00000000 or 00000001 on any RTL-SDR, this causes confusion in the RTL-SDR utilities.
 
-Ensure the RTL-SDR dongle has adequite power. If using a hub, check that it is an active externally-powered hub, not powered from the main computer. Or better yet, plug the RTL-SDR dongle directly into the host USB port, don't use a hub.
+<details>
+<summary>Programming RTL-SDR serial number</summary>
+```
+root@2ca01d75885c:/# rtl_eeprom -s SDR00002
+Found 1 device(s):
+  0:  Generic RTL2832U OEM
+
+Using device 0: Generic RTL2832U OEM
+Found Rafael Micro R820T tuner
+
+Current configuration:
+__________________________________________
+Vendor ID:		0x0bda
+Product ID:		0x2838
+Manufacturer:		Realtek
+Product:		RTL2838UHIDIR
+Serial number:		0
+Serial number enabled:	yes
+Bias Tee always on:	no
+Remote wakeup enabled:	no
+__________________________________________
+
+New configuration:
+__________________________________________
+Vendor ID:		0x0bda
+Product ID:		0x2838
+Manufacturer:		Realtek
+Product:		RTL2838UHIDIR
+Serial number:		SDR00002
+Serial number enabled:	yes
+Bias Tee always on:	no
+Remote wakeup enabled:	no
+__________________________________________
+Write new configuration to device [y/n]? y
+
+Configuration successfully written.
+Please replug the device for changes to take effect.
+root@2ca01d75885c:/#
+```
+</details>
+
+Ensure the RTL-SDR dongle has adequate power. If using a hub, check that it is an active externally-powered hub, not powered from the main computer. Or better yet, plug the RTL-SDR dongle directly into the host USB port, don't use a hub. Raspberry Pi's (and other small embedded computers) have a lower power limit 
 
 You'll also need an antenna plugged into the dongle. For mobile use, any 1/4 wave mag mount works well. For home/stationary use, a J-pole or [quarter-wave ground plane antenna](https://www.klofas.com/blog/2022/quarter-wave-ground-plane-antenna/) works well.
 
 
 
 ## Run this container
-This project installs the RTL-SDR drivers and Direwolf into a docker container. No dependencies to install. Total container size is 100 to 125 MB, depending on the host architecture.
+This project installs the RTL-SDR drivers and Direwolf into a docker container. No dependencies to install. Total container size is 125 to 160 MB, depending on the host architecture.
 
 ### 1.1 Install Docker
 Check to see if docker is already installed by running `docker ps`. If this errors out, install Docker by using the convenience script:
@@ -31,7 +72,7 @@ After docker installation, to be able to run docker commands as your non-root us
 sudo usermod -aG docker $(whoami)
 ```
 
-You will need to logout and log back in (or reboot) afterwards to pick up the changes to group membership.
+Reboot your computer afterwards to pick up the changes to group membership.
 
 ### 1.2 RTL-SDR Kernel Blacklisting
 The RTL DVB kernel modules must first be blacklisted on the Docker host (the computer where the RTL-SDR dongle is plugged into). RTL-SDR itself is not required on the Docker host. This can be accomplished using the following commands:
@@ -64,7 +105,7 @@ Change your local APRS frequency, RTL-SDR device index, callsign, IGate server, 
     * This image will start rtl_fm piping audio to direwolf, and show the received packets on STDOUT.
     * Make sure at least one RTL-SDR dongle is connected. If you have a device_idx in your station.conf file, it will use that one. Otherwise, it will pick the first available dongle to use.
     * Host networking (--network=host) is not required, since traffic is outbound only.
-    * The generated `rtl_fm` command will be displayed at the beginning.
+    * The generated `rtl_fm` command and direwolf configuration will be displayed at the beginning.
     * Startup messages and decoded packets will display in the terminal.
     * Using the --rm flag will delete the container when you kill it. Otherwise, it will stay around until you prune.
     * Ctrl-C to kill.
@@ -84,7 +125,7 @@ Change your local APRS frequency, RTL-SDR device index, callsign, IGate server, 
 
 ## Jump Into the Container
 
-If you just want to start a new container but not actually start rtl_fm and direwolf:
+If you just want to start a new container but not actually start rtl_fm and direwolf (such as for running the rtl_eeprom utility):
 
 ```
 docker run -it --rm --device=/dev/bus/usb -v ~/rtl-aprs-igate/station.conf:/station.conf:ro ghcr.io/bklofas/rtl-aprs-igate:latest bash
@@ -97,6 +138,10 @@ Once you're inside the container, you can run any of the RTL-SDR utilities manua
 
 ## Build Container Locally
 To build this container locally, check out this repository and build with `docker build -t rtl-aprs-igate .` Image size will be between 140 and 170 MB depending on your computer architecture.
+
+Alternatively you can build the container with `docker build -t rtl-aprs-igate https://github.com/bklofas/rtl-aprs-igate.git`
+
+If you'd like to build the container against a branch `docker build -t rtl-aprs-igate-branch https://github.com/bklofas/rtl-aprs-igate.git#branch_name`
 
 
 ## Future Work
@@ -114,7 +159,8 @@ To build this container locally, check out this repository and build with `docke
     * Added station.conf configuration file for RTL-SDR options.
 1. Version 3.0:
     * ghcr.io/bklofas/rtl-aprs-igate:v3.0
-    * Added direwolf section to configuration file, to generate the direwolf.conf file automatically
+    * Generate the direwolf.conf file automatically
+    * Added direwolf section to configuration file
 
 ## Acknowledgments/Inspiration
 
