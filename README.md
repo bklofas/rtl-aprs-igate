@@ -12,9 +12,9 @@ If you have more than one RTL-SDR dongle, set each one with a unique device_inde
 
 <summary>Programming RTL-SDR serial number</summary>
 
-Jump into a new container to access the rtl_eeprom utility:
+Make sure that only one RTL-SDR dongle is plugged into the computer. Jump into a new container to access the rtl_eeprom utility:
 ```
-$ docker run -it --rm --device=/dev/bus/usb ghcr.io/bklofas/rtl-aprs-igate:latest bash`
+$ docker run -it --rm --device=/dev/bus/usb ghcr.io/bklofas/rtl-aprs-igate:latest bash
 ```
 
 Then once inside the container, run rtl_eeprom:
@@ -87,8 +87,8 @@ sudo usermod -aG docker $(whoami)
 
 Reboot your computer afterwards to pick up the changes to group membership.
 
-### 1.2 RTL-SDR Kernel Blacklisting
-The RTL DVB kernel modules must first be blacklisted on the Docker host (the computer where the RTL-SDR dongle is plugged into). RTL-SDR itself is not required on the Docker host. This can be accomplished using the following commands:
+### 1.2 RTL DVB Kernel Module Blacklisting
+The RTL DVB kernel modules must first be blacklisted on the Docker host (the computer where the RTL-SDR dongle is plugged into). Otherwise your computer will think you want to watch TV with your dongle! RTL-SDR itself is not required on the Docker host. This can be accomplished using the following commands:
 
 ```
 echo 'blacklist dvb_usb_rtl28xxu' | sudo tee /etc/modprobe.d/blacklist-dvb_usb_rtl28xxu.conf
